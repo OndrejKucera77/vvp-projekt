@@ -26,7 +26,7 @@ class BubbleSort(Sort):
             for i in range(right-1):
                 yield {"list": self.data, "compare": (i, i+1), "correct": list(range(right, n))}
 
-                if self.data[i] > self.data[i+1] * self._order_int:
+                if self._order_int * (self.data[i] - self.data[i+1]) > 0:
                     self.data[i], self.data[i+1] = self.data[i+1], self.data[i]
                     last_change = i
                     yield {"list": self.data, "compare": (i, i+1), "correct": list(range(right, n))}
