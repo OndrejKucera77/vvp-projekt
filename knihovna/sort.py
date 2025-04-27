@@ -3,7 +3,7 @@ Module containing the abstract parent class Sort.
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Literal
+from typing import List, Literal, Generator
 from matplotlib.animation import Animation
 
 
@@ -16,7 +16,7 @@ class Sort(ABC):
         data - list of numbers (int/float) to sort
         order - desired order of the sorted list (ascending/descending), defaults to ascending
     
-    Metody:
+    Metods:
         set_data - sets data
         set_order - sets order
         animate - returns a visualisation animation of the sorting algorithm
@@ -60,14 +60,19 @@ class Sort(ABC):
         """
         if order != "ascending" and order != "descending":
             raise TypeError("Order must be either 'ascending' or 'descending'")
+        
         self.order = order
+        self._order_int = (-1, 1)[self.order == "ascending"]
 
     
     def animate(self, speed: int|float = 0.5) -> Animation:
         # TODO
         self._check_anim_values(speed)
         
-        #self._sort_next()
+        iterator = self._sort_next()
+
+        for i in iterator:
+            print(i)
 
 
     def _check_anim_values(self, speed: int|float) -> None:
@@ -84,7 +89,7 @@ class Sort(ABC):
 
     
     @abstractmethod
-    def _sort_next(self) -> dict:
+    def _sort_next(self) -> Generator:
         """
         A generator function returning a dict of values to be shown in each frame of the algorithm's animation.
         """
