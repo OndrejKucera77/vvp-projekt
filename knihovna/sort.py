@@ -10,13 +10,13 @@ from matplotlib.animation import Animation
 class Sort(ABC):
     """
     Abstract class containing basic methods which every visualising sorting algorithm needs.
-    Doesn't include any sorting algorithm which needs to be implemented in an inhereting class.
+    Doesn't include any sorting algorithm. This needs to be implemented in an inhereting class.
 
     Attributes:
         data - list of numbers (int/float) to sort
         order - desired order of the sorted list (ascending/descending), defaults to ascending
     
-    Metods:
+    Methods:
         set_data - sets data
         set_order - sets order
         animate - returns a visualisation animation of the sorting algorithm
@@ -37,8 +37,8 @@ class Sort(ABC):
 
     def set_data(self, data: List[int|float] | str) -> None:
         """
-        Sets the data to be sorted. Data can be either in form of a list of numbers, or a string with the path
-        to a file in which the data is saved.
+        Sets the data to be sorted. Data can be either in form of a list of numbers, or a string with a path
+        to a file with the data. Data saved in a file should be valid float numbers divided by whitespace.
         """
         if isinstance(data, list):
             # data jsou v listu čísel
@@ -59,20 +59,20 @@ class Sort(ABC):
         Sets the desired order of the sorted data.
         """
         if order != "ascending" and order != "descending":
-            raise TypeError("Order must be either 'ascending' or 'descending'")
+            raise ValueError("Order must be either 'ascending' or 'descending'")
         
         self.order = order
-        self._order_int = (-1, 1)[self.order == "ascending"]
+        self._order_int = (-1, 1)[self.order == "ascending"] # pro jednodušší porovnávání
 
     
     def animate(self, speed: int|float = 0.5) -> Animation:
         # TODO
         self._check_anim_values(speed)
         
-        iterator = self._sort_next()
+        generator = self._sort_next()
 
-        for i in iterator:
-            print(i)
+        for frame_info in generator:
+            print(frame_info)
 
 
     def _check_anim_values(self, speed: int|float) -> None:
@@ -80,7 +80,7 @@ class Sort(ABC):
         Checks whether all variables passed to `animate` have correct types and values.
         """
         if self.data is None:
-            raise TypeError("Sorting data must be set")
+            raise ValueError("Sorting data must be set")
         
         if not isinstance(speed, (int, float)):
             raise TypeError("Speed must be a number")
@@ -92,5 +92,10 @@ class Sort(ABC):
     def _sort_next(self) -> Generator:
         """
         A generator function returning a dict of values to be shown in each frame of the algorithm's animation.
+        
+        These are the possible values:
+            data - a (partially) sorted list of data
+            compare - a tuple with 2 indexes of currently compared elements
+            correct - a list of indexes of correctly sorted elements
         """
         pass
