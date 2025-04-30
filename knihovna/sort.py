@@ -3,8 +3,9 @@ Module containing the abstract parent class Sort.
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Literal, Generator
-from matplotlib.animation import Animation
+from typing import List, Literal, Tuple, Generator
+from matplotlib.animation import ArtistAnimation
+from .animation import Animation
 
 
 class Sort(ABC):
@@ -30,9 +31,11 @@ class Sort(ABC):
             order - desired order of the sorted list
         """
         super().__init__()
+        
         if data is not None:
             self.set_data(data)
         self.set_order(order)
+        self.animation = Animation()
     
 
     def set_data(self, data: List[int|float] | str) -> None:
@@ -65,27 +68,45 @@ class Sort(ABC):
         self._order_int = (-1, 1)[self.order == "ascending"] # pro jednodušší porovnávání
 
     
-    def animate(self, speed: int|float = 0.5) -> Animation:
-        # TODO
-        self._check_anim_values(speed)
+    def animate(self, speed: int|float = 0.5, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
+        """
+        Creates the vizualization animation, as a bar graph.
         
-        generator = self._sort_next()
+        Params:
+            speed - delay between frames
+            figsize - figure size (in inches)
+        """
+        self._check_anim_values(speed, figsize)
+        frames = [frame for frame in self._sort_next()]
+        
+        for frame in frames: # jen dočasné
+            print(frame)
+        
+        return self.animation.create_anim(frames, speed, figsize)
 
-        for frame_info in generator:
-            print(frame_info)
 
-
-    def _check_anim_values(self, speed: int|float) -> None:
+    def _check_anim_values(self, speed: int|float, figsize: Tuple[float, float] | None) -> None:
         """
         Checks whether all variables passed to `animate` have correct types and values.
         """
+        # data
         if self.data is None:
             raise ValueError("Sorting data must be set")
         
+        # speed
         if not isinstance(speed, (int, float)):
             raise TypeError("Speed must be a number")
         elif speed <= 0:
             raise ValueError("Speed must have a positive value")
+        
+        # figsize (dále kontrolováno v matplotlib)
+        if not isinstance(figsize, (tuple, type(None))):
+            raise TypeError("Figure size must be a 2-tuple of floats")
+        elif isinstance(figsize, tuple):
+            if len(figsize) != 2:
+                raise TypeError("Figure size must be a 2-tuple of floats")
+            elif not isinstance(figsize[0], float) or not isinstance(figsize[1], float):
+                raise TypeError("Figure size must be a 2-tuple of floats")
 
     
     @abstractmethod
@@ -95,7 +116,7 @@ class Sort(ABC):
         
         These are the possible values:
             data - a (partially) sorted list of data
-            compare - a tuple with 2 indexes of currently compared elements
+            compare - a 2-tuple with indexes of currently compared elements
             correct - a tuple of indexes of correctly sorted elements
         """
         pass
