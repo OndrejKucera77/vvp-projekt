@@ -24,12 +24,12 @@ class BubbleSort(Sort):
             last_change = 0
 
             for i in range(right-1):
-                yield {"data": self.data, "compare": (i, i+1), "correct": list(range(right, n))}
+                yield {"data": self.data, "compare": (i, i+1), "correct": tuple(range(right, n))}
 
                 if self._order_int * (self.data[i] - self.data[i+1]) > 0:
                     self.data[i], self.data[i+1] = self.data[i+1], self.data[i]
                     last_change = i
-                    yield {"data": self.data, "compare": (i, i+1), "correct": list(range(right, n))}
+                    yield {"data": self.data, "compare": (i, i+1), "correct": tuple(range(right, n))}
             
             right = 0 if (last_change == 0) else (last_change + 1)
-            yield {"data": self.data, "correct": list(range(right, n))}
+            yield {"data": self.data, "correct": tuple(range(right, n))}
