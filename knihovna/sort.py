@@ -70,7 +70,7 @@ class Sort(ABC):
     
     def animate(self, speed: int|float = 0.5, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
         """
-        Creates the vizualization animation, as a bar graph.
+        Creates the visualization animation, as a bar graph.
         
         Params:
             speed - delay between frames

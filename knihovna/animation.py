@@ -10,7 +10,7 @@ from typing import List, Tuple
 class Animation():
     """
     A class used to create the matplotlib's ArtistAnimation object.
-    This class creates a vizualization of a sorting algorithm from the vizualization data, as a bar graph.
+    This class creates a visualization of a sorting algorithm from the visualization data, as a bar graph.
 
     Methods:
         set_style - sets the style (bar fill and edge colors etc.)
@@ -33,7 +33,7 @@ class Animation():
 
     def create_anim(self, frames: List[dict], speed: int|float, figsize: Tuple[float, float] | None) -> ArtistAnimation:
         """
-        Creates the vizualization animation.
+        Creates the visualization animation.
         
         Params:
             frames - list of frame data
