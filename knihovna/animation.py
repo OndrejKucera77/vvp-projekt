@@ -41,4 +41,28 @@ class Animation():
             figsize - figure size (in inches)
         """
         # TODO
-        pass
+        self._check_anim_values(speed, figsize)
+
+
+    def _check_anim_values(self, speed: int|float, figsize: Tuple[float, float] | None) -> None:
+        """
+        Checks whether all variables passed to `animate` have correct types and values.
+        """
+        # data
+        if self.data is None:
+            raise ValueError("Sorting data must be set")
+        
+        # speed
+        if not isinstance(speed, (int, float)):
+            raise TypeError("Speed must be a number")
+        elif speed <= 0:
+            raise ValueError("Speed must have a positive value")
+        
+        # figsize (dále kontrolováno v matplotlib)
+        if not isinstance(figsize, (tuple, type(None))):
+            raise TypeError("Figure size must be a 2-tuple of floats")
+        elif isinstance(figsize, tuple):
+            if len(figsize) != 2:
+                raise TypeError("Figure size must be a 2-tuple of floats")
+            elif not isinstance(figsize[0], float) or not isinstance(figsize[1], float):
+                raise TypeError("Figure size must be a 2-tuple of floats")
