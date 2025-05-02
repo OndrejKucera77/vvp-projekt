@@ -40,17 +40,20 @@ class Animation():
             speed - delay between frames
             figsize - figure size (in inches)
         """
-        # TODO
         self._check_anim_values(speed, figsize)
 
 
-    def _check_anim_values(self, speed: int|float, figsize: Tuple[float, float] | None) -> None:
+    def _check_anim_values(self, frames: List[dict], speed: int|float, figsize: Tuple[float, float] | None) -> None:
         """
-        Checks whether all variables passed to `animate` have correct types and values.
-        """
-        # data
-        if self.data is None:
-            raise ValueError("Sorting data must be set")
+        Checks whether all variables passed to `create_anim` have correct types and values.
+        """    
+        # frames
+        if not isinstance(frames, list):
+            raise TypeError("Frames must be a list")
+        else:
+            for frame in frames:
+                if not isinstance(frame, dict):
+                    raise TypeError("Every frame must be a dict")
         
         # speed
         if not isinstance(speed, (int, float)):

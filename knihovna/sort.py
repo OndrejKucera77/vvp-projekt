@@ -76,6 +76,9 @@ class Sort(ABC):
             speed - delay between frames
             figsize - figure size (in inches)
         """
+        if self.data is None:
+            raise ValueError("Sorting data must be set")
+        
         frames = [frame for frame in self._sort_next()]
         
         for frame in frames: # jen dočasné
