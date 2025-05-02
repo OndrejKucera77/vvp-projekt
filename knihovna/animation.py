@@ -4,6 +4,8 @@ Module containing the Animation class.
 
 import matplotlib.pyplot as plt
 from matplotlib.animation import ArtistAnimation
+from matplotlib.container import BarContainer
+from matplotlib.figure import Figure
 from typing import List, Tuple
 
 
@@ -31,16 +33,33 @@ class Animation():
         pass
 
 
-    def create_anim(self, frames: List[dict], speed: int|float, figsize: Tuple[float, float] | None) -> ArtistAnimation:
+    def create_anim(self, frames: List[dict], speed: int|float = 0.5, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
         """
         Creates the visualization animation.
         
         Params:
             frames - list of frame data
-            speed - delay between frames
+            speed - delay between frames in seconds
             figsize - figure size (in inches)
         """
-        self._check_anim_values(speed, figsize)
+        self._check_anim_values(frames, speed, figsize)
+
+        figure = plt.figure("Sorting algorithm animation", figsize=figsize)
+        artists = []
+        
+        for frame in frames:
+            artists.append(self._create_anim_frame(figure, frame))
+
+        return ArtistAnimation(figure, artists, speed * 1000, repeat=False, blit=True)
+    
+    
+    def _create_anim_frame(self, figure: Figure, frame: dict) -> BarContainer:
+        """
+        Create one frame of the animation.
+        """
+        axes = figure.add_axes((0, 0, 1, 1))
+        barc = axes.bar(range(len(frame["data"])), frame["data"])
+        return barc
 
 
     def _check_anim_values(self, frames: List[dict], speed: int|float, figsize: Tuple[float, float] | None) -> None:

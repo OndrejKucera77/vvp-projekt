@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from typing import List, Literal, Tuple, Generator
 from matplotlib.animation import ArtistAnimation
 from .animation import Animation
+import copy
 
 
 class Sort(ABC):
@@ -73,13 +74,13 @@ class Sort(ABC):
         Creates the visualization animation, as a bar graph.
         
         Params:
-            speed - delay between frames
+            speed - delay between frames in seconds
             figsize - figure size (in inches)
         """
         if self.data is None:
             raise ValueError("Sorting data must be set")
         
-        frames = [frame for frame in self._sort_next()]
+        frames = [copy.deepcopy(frame) for frame in self._sort_next()]
         
         for frame in frames: # jen dočasné
             print(frame)
