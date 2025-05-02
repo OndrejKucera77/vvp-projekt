@@ -24,8 +24,19 @@ class Animation():
         """
         Creates an instance of this class and sets default style.
         """
-        # TODO
-        pass
+        self.style = {
+            "face_colors": {
+                "unsorted": "#ff1e4c",
+                "compare": "#FFEC1B",
+                "sorted": "#23F01D"
+            },
+            "edge_colors": {
+                "unsorted": "#b51536",
+                "compare": "#B3A513",
+                "sorted": "#1AB316"
+            },
+            "line_width": 3
+        }
 
 
     def set_style(self, style: dict) -> None:
@@ -50,15 +61,31 @@ class Animation():
         for frame in frames:
             artists.append(self._create_anim_frame(figure, frame))
 
-        return ArtistAnimation(figure, artists, speed * 1000, repeat=False, blit=True)
+        return ArtistAnimation(figure, artists, speed * 1000, blit=True)
     
     
     def _create_anim_frame(self, figure: Figure, frame: dict) -> BarContainer:
         """
         Create one frame of the animation.
         """
+        n = len(frame["data"])
+        x = range(n)
+        y = frame["data"]
+
+        # nastavení správných barev
+        face_cols = [self.style["face_colors"]["unsorted"]] * n
+        edge_cols = [self.style["edge_colors"]["unsorted"]] * n
+
+        for i in range(n):
+            if "compare" in frame and i in frame["compare"]:
+                face_cols[i] = self.style["face_colors"]["compare"]
+                edge_cols[i] = self.style["edge_colors"]["compare"]
+            elif "correct" in frame and i in frame["correct"]:
+                face_cols[i] = self.style["face_colors"]["sorted"]
+                edge_cols[i] = self.style["edge_colors"]["sorted"]
+
         axes = figure.add_axes((0, 0, 1, 1))
-        barc = axes.bar(range(len(frame["data"])), frame["data"])
+        barc = axes.bar(x, y, facecolor=face_cols, edgecolor=edge_cols, linewidth=self.style["line_width"])
         return barc
 
 
@@ -86,5 +113,5 @@ class Animation():
         elif isinstance(figsize, tuple):
             if len(figsize) != 2:
                 raise TypeError("Figure size must be a 2-tuple of floats")
-            elif not isinstance(figsize[0], float) or not isinstance(figsize[1], float):
+            elif not isinstance(figsize[0], (int, float)) or not isinstance(figsize[1], (int, float)):
                 raise TypeError("Figure size must be a 2-tuple of floats")

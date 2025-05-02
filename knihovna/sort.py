@@ -81,10 +81,6 @@ class Sort(ABC):
             raise ValueError("Sorting data must be set")
         
         frames = [copy.deepcopy(frame) for frame in self._sort_next()]
-        
-        for frame in frames: # jen dočasné
-            print(frame)
-        
         return self.animation.create_anim(frames, speed, figsize)
 
     
