@@ -92,6 +92,6 @@ class Sort(ABC):
         These are the possible values:
             data - a (partially) sorted list of data
             compare - a 2-tuple with indexes of currently compared elements
-            correct - a tuple of indexes of correctly sorted elements
+            correct - a list of indexes of correctly sorted elements
         """
         pass
