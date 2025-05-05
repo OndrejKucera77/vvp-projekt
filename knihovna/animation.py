@@ -14,9 +14,12 @@ class Animation():
     A class used to create the matplotlib's ArtistAnimation object.
     This class creates a visualization of a sorting algorithm from the visualization data, as a bar graph.
 
+    Attributes:
+        style - a dict setting the style of the animation (bar fill and edge colors etc.)
+
     Methods:
-        set_style - sets the style (bar fill and edge colors etc.)
-        create_anim - creates the animation
+        set_style - sets the style
+        create_anim - creates the animation as ArtistAnimation from matplotlib
     """
 
 
@@ -26,12 +29,12 @@ class Animation():
         """
         self.style = {
             "face_colors": {
-                "unsorted": "#ff1e4c",
+                "unsorted": "#FF1E4C",
                 "compare": "#FFEC1B",
                 "sorted": "#23F01D"
             },
             "edge_colors": {
-                "unsorted": "#b51536",
+                "unsorted": "#B51536",
                 "compare": "#B3A513",
                 "sorted": "#1AB316"
             },
@@ -40,8 +43,51 @@ class Animation():
 
 
     def set_style(self, style: dict) -> None:
-        # TODO
-        pass
+        """
+        Sets the style of the animation. Only correctly provided values will be changed.
+
+        Params:
+            style - a dict of style values
+        
+        This is the dict's structure:
+        {
+        face_colors: {
+            unsorted: (color),
+            compare: (color),
+            sorted: (color)
+        }, edge_colors: {
+            unsorted: (color),
+            compare: (color),
+            sorted: (color)
+        }, line_width: (float)
+        }
+
+        Colors should be in a valid matplotlib color format.
+        """
+        if not isinstance(style, dict):
+            raise TypeError("Style must be a dictionnary")
+        
+        if "face_colors" in style:
+            s = style["face_colors"]
+            if "unsorted" in s and isinstance(s["unsorted"], (str, tuple)):
+                self.style["face_colors"]["unsorted"] = s["unsorted"]
+            if "compare" in s and isinstance(s["compare"], (str, tuple)):
+                self.style["face_colors"]["compare"] = s["compare"]
+            if "sorted" in s and isinstance(s["sorted"], (str, tuple)):
+                self.style["face_colors"]["sorted"] = s["sorted"]
+        
+        if "edge_colors" in style:
+            s = style["edge_colors"]
+            if "unsorted" in s and isinstance(s["unsorted"], (str, tuple)):
+                self.style["edge_colors"]["unsorted"] = s["unsorted"]
+            if "compare" in s and isinstance(s["compare"], (str, tuple)):
+                self.style["edge_colors"]["compare"] = s["compare"]
+            if "sorted" in s and isinstance(s["sorted"], (str, tuple)):
+                self.style["edge_colors"]["sorted"] = s["sorted"]
+        
+        if "line_width" in style:
+            if isinstance(style["line_width"], (int, float)) and style["line_width"] >= 0:
+                self.style["line_width"] = style["line_width"]
 
 
     def create_anim(self, frames: List[dict], speed: int|float = 0.5, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
@@ -107,7 +153,7 @@ class Animation():
         elif speed <= 0:
             raise ValueError("Speed must have a positive value")
         
-        # figsize (dále kontrolováno v matplotlib)
+        # figsize
         if not isinstance(figsize, (tuple, type(None))):
             raise TypeError("Figure size must be a 2-tuple of floats")
         elif isinstance(figsize, tuple):
@@ -115,3 +161,5 @@ class Animation():
                 raise TypeError("Figure size must be a 2-tuple of floats")
             elif not isinstance(figsize[0], (int, float)) or not isinstance(figsize[1], (int, float)):
                 raise TypeError("Figure size must be a 2-tuple of floats")
+            elif figsize[0] <= 0 or figsize[1] <= 0:
+                raise ValueError("Figure size must be positive in both directions")

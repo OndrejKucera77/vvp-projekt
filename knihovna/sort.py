@@ -17,26 +17,33 @@ class Sort(ABC):
     Attributes:
         data - list of numbers (int/float) to sort
         order - desired order of the sorted list (ascending/descending), defaults to ascending
+        style - the style of the animation (i.e. bar colors)
     
     Methods:
         set_data - sets data
         set_order - sets order
+        set_style - sets the animation's style
         animate - returns a visualisation animation of the sorting algorithm
     """
 
 
-    def __init__(self, data: List[int|float] | str | None = None, order: Literal["ascending", "descending"] = "ascending") -> None:
+    def __init__(self, data: List[int|float] | str | None = None, order: Literal["ascending", "descending"] = "ascending", style: dict | None = None) -> None:
         """
         Params:
             data - list of numbers to sort or a path to a file
             order - desired order of the sorted list
+            style - a dict containing the style of the animation
         """
         super().__init__()
         
         if data is not None:
             self.set_data(data)
         self.set_order(order)
-        self.animation = Animation()
+
+        self._animation = Animation()
+        if style is not None:
+            self._animation.set_style(style)
+        self.style = self._animation.style
     
 
     def set_data(self, data: List[int|float] | str) -> None:
@@ -67,6 +74,32 @@ class Sort(ABC):
         
         self.order = order
         self._order_int = (-1, 1)[self.order == "ascending"] # pro jednodušší porovnávání
+    
+
+    def set_style(self, style: dict) -> None:
+        """
+        Sets the style of the animation. Only correctly provided values will be changed.
+
+        Params:
+            style - a dict of style values
+        
+        This is the dict's structure:
+        {
+        face_colors: {
+            unsorted: (color),
+            compare: (color),
+            sorted: (color)
+        }, edge_colors: {
+            unsorted: (color),
+            compare: (color),
+            sorted: (color)
+        }, line_width: (float)
+        }
+
+        Colors should be in a valid matplotlib color format.
+        """
+        self._animation.set_style(style)
+        self.style = self._animation.style
 
     
     def animate(self, speed: int|float = 0.5, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
@@ -81,7 +114,7 @@ class Sort(ABC):
             raise ValueError("Sorting data must be set")
         
         frames = [copy.deepcopy(frame) for frame in self._sort_next()]
-        return self.animation.create_anim(frames, speed, figsize)
+        return self._animation.create_anim(frames, speed, figsize)
 
     
     @abstractmethod
