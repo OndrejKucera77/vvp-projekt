@@ -4,8 +4,10 @@ Module containing the Animation class.
 
 import matplotlib.pyplot as plt
 from matplotlib.animation import ArtistAnimation
-from matplotlib.container import BarContainer
-from matplotlib.figure import Figure
+from matplotlib.artist import Artist
+from matplotlib.lines import Line2D
+from matplotlib.text import Text
+from matplotlib.axes import Axes
 from typing import List, Tuple
 
 
@@ -38,7 +40,7 @@ class Animation():
                 "compare": "#B3A513",
                 "sorted": "#1AB316"
             },
-            "line_width": 3
+            "line_width": 2.4
         }
 
 
@@ -98,21 +100,41 @@ class Animation():
             frames - list of frame data
             speed - delay between frames in seconds
             figsize - figure size (in inches)
+
+        Returns:
+            ArtistAnimation - the animation
         """
         self._check_anim_values(frames, speed, figsize)
 
         figure = plt.figure("Sorting algorithm animation", figsize=figsize)
+        figure.add_artist(Line2D([0.03, 0.97], [0.07, 0.07], color="black", linestyle="--", linewidth=self.style["line_width"]))
+        figure.add_artist(Text(0.03, 0.03, "n = {}".format(len(frames[0]["data"]))))
+
+        figAxes = figure.add_axes((0, 0, 1, 1))
+        barAxes = figure.add_axes((0, 0.08, 1, 0.9))
+        barAxes.set_frame_on(False)
+        barAxes.set_xticks([])
+        barAxes.set_yticks([])
+
         artists = []
         
         for frame in frames:
-            artists.append(self._create_anim_frame(figure, frame))
+            artists.append(self._create_anim_frame(figAxes, barAxes, frame))
 
         return ArtistAnimation(figure, artists, speed * 1000, blit=True)
     
     
-    def _create_anim_frame(self, figure: Figure, frame: dict) -> BarContainer:
+    def _create_anim_frame(self, figAxes: Axes, barAxes: Axes, frame: dict) -> List[Artist]:
         """
-        Create one frame of the animation.
+        Create a list of Artists to be shown in a new frame.
+
+        Params:
+            figAxes - axes covering the whole figure
+            barAxes - axes where the barplot should be shown
+            frame - current frame's data
+        
+        Returns:
+            List[Artist] - list with the artists
         """
         n = len(frame["data"])
         x = range(n)
@@ -130,9 +152,10 @@ class Animation():
                 face_cols[i] = self.style["face_colors"]["sorted"]
                 edge_cols[i] = self.style["edge_colors"]["sorted"]
 
-        axes = figure.add_axes((0, 0, 1, 1))
-        barc = axes.bar(x, y, facecolor=face_cols, edgecolor=edge_cols, linewidth=self.style["line_width"])
-        return barc
+        bars = barAxes.bar(x, y, facecolor=face_cols, edgecolor=edge_cols, linewidth=self.style["line_width"])
+        text = figAxes.text(0.97, 0.03, "k = {}".format(frame["k"]), horizontalalignment="right")
+        
+        return list(bars) + [text]
 
 
     def _check_anim_values(self, frames: List[dict], speed: int|float, figsize: Tuple[float, float] | None) -> None:

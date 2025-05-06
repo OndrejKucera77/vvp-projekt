@@ -126,5 +126,6 @@ class Sort(ABC):
             data - a (partially) sorted list of data
             compare - a 2-tuple with indexes of currently compared elements
             correct - a list of indexes of correctly sorted elements
+            k - the iteration number (how many comparisons have been made)
         """
         pass
