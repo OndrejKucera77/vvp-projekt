@@ -40,7 +40,11 @@ class Animation():
                 "compare": "#B3A513",
                 "sorted": "#1AB316"
             },
-            "line_width": 2.4
+            "line_width": 2.4,
+            "line_style": "--",
+            "line_color": "black",
+            "text_color": "black",
+            "background_color": "white"
         }
 
 
@@ -61,10 +65,14 @@ class Animation():
             unsorted: (color),
             compare: (color),
             sorted: (color)
-        }, line_width: (float)
+        }, line_width: (float),
+        line_style: (style),
+        line_color: (color),
+        text_color: (color),
+        background_color: (color)
         }
 
-        Colors should be in a valid matplotlib color format.
+        Colors should be in a valid matplotlib color format. Style should be a valid matplotlib line style, e.g. "dotted".
         """
         if not isinstance(style, dict):
             raise TypeError("Style must be a dictionnary")
@@ -87,9 +95,20 @@ class Animation():
             if "sorted" in s and isinstance(s["sorted"], (str, tuple)):
                 self.style["edge_colors"]["sorted"] = s["sorted"]
         
-        if "line_width" in style:
-            if isinstance(style["line_width"], (int, float)) and style["line_width"] >= 0:
-                self.style["line_width"] = style["line_width"]
+        if "line_width" in style and isinstance(style["line_width"], (int, float)) and style["line_width"] >= 0:
+            self.style["line_width"] = style["line_width"]
+        
+        if "line_style" in style and isinstance(style["line_style"], str):
+            self.style["line_style"] = style["line_style"]
+        
+        if "line_color" in style and isinstance(style["line_color"], (str, tuple)):
+            self.style["line_color"] = style["line_color"]
+        
+        if "text_color" in style and isinstance(style["text_color"], (str, tuple)):
+            self.style["text_color"] = style["text_color"]
+        
+        if "background_color" in style and isinstance(style["background_color"], (str, tuple)):
+            self.style["background_color"] = style["background_color"]
 
 
     def create_anim(self, frames: List[dict], speed: int|float = 0.5, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
@@ -106,12 +125,14 @@ class Animation():
         """
         self._check_anim_values(frames, speed, figsize)
 
-        figure = plt.figure("Sorting algorithm animation", figsize=figsize)
-        figure.add_artist(Line2D([0.03, 0.97], [0.07, 0.07], color="black", linestyle="--", linewidth=self.style["line_width"]))
-        figure.add_artist(Text(0.03, 0.03, "n = {}".format(len(frames[0]["data"]))))
+        fig = plt.figure("Sorting algorithm animation", figsize=figsize)
+        fig.add_artist(Line2D([0.03, 0.97], [0.07, 0.07], color=self.style["line_color"], linestyle=self.style["line_style"], linewidth=self.style["line_width"]))
+        fig.add_artist(Text(0.03, 0.03, "n = {}".format(len(frames[0]["data"])), color=self.style["text_color"]))
 
-        figAxes = figure.add_axes((0, 0, 1, 1))
-        barAxes = figure.add_axes((0, 0.08, 1, 0.9))
+        figAxes = fig.add_axes((0, 0, 1, 1))
+        figAxes.set_facecolor(self.style["background_color"])
+
+        barAxes = fig.add_axes((0, 0.08, 1, 0.9))
         barAxes.set_frame_on(False)
         barAxes.set_xticks([])
         barAxes.set_yticks([])
@@ -121,7 +142,7 @@ class Animation():
         for frame in frames:
             artists.append(self._create_anim_frame(figAxes, barAxes, frame))
 
-        return ArtistAnimation(figure, artists, speed * 1000, blit=True)
+        return ArtistAnimation(fig, artists, speed * 1000, blit=True)
     
     
     def _create_anim_frame(self, figAxes: Axes, barAxes: Axes, frame: dict) -> List[Artist]:
@@ -153,7 +174,7 @@ class Animation():
                 edge_cols[i] = self.style["edge_colors"]["sorted"]
 
         bars = barAxes.bar(x, y, facecolor=face_cols, edgecolor=edge_cols, linewidth=self.style["line_width"])
-        text = figAxes.text(0.97, 0.03, "k = {}".format(frame["k"]), horizontalalignment="right")
+        text = figAxes.text(0.97, 0.03, "k = {}".format(frame["k"]), horizontalalignment="right", color=self.style["text_color"])
         
         return list(bars) + [text]
 

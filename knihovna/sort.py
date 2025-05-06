@@ -93,10 +93,14 @@ class Sort(ABC):
             unsorted: (color),
             compare: (color),
             sorted: (color)
-        }, line_width: (float)
+        }, line_width: (float),
+        line_style: (style),
+        line_color: (color),
+        text_color: (color),
+        background_color: (color)
         }
 
-        Colors should be in a valid matplotlib color format.
+        Colors should be in a valid matplotlib color format. Style should be a valid matplotlib line style, e.g. "dotted".
         """
         self._animation.set_style(style)
         self.style = self._animation.style
