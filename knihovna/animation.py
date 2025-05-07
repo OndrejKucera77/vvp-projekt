@@ -116,19 +116,20 @@ class Animation():
             self.style["background_color"] = style["background_color"]
 
 
-    def create_anim(self, frames: List[dict], speed: int|float = 0.5, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
+    def create_anim(self, frames: List[dict], speed: int|float = 0.5, repeat: bool = True, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
         """
         Creates the visualization animation.
         
         Params:
             frames - list of frame data
             speed - delay between frames in seconds
+            repeat - if the animation should repeat
             figsize - figure size (in inches)
 
         Returns:
             ArtistAnimation - the animation
         """
-        self._check_anim_values(frames, speed, figsize)
+        self._check_anim_values(frames, speed, repeat, figsize)
 
         fig = plt.figure("Sorting algorithm animation", figsize=figsize)
         fig.set_facecolor(self.style["background_color"])
@@ -143,15 +144,16 @@ class Animation():
         barAxes.set_xticks([])
         barAxes.set_yticks([])
 
+        max_k = frames[-1]["k"]
         artists = []
         
         for frame in frames:
-            artists.append(self._create_anim_frame(figAxes, barAxes, frame))
+            artists.append(self._create_anim_frame(figAxes, barAxes, frame, max_k))
 
-        return ArtistAnimation(fig, artists, speed * 1000, blit=True)
+        return ArtistAnimation(fig, artists, speed * 1000, repeat=repeat, blit=True)
     
     
-    def _create_anim_frame(self, figAxes: Axes, barAxes: Axes, frame: dict) -> List[Artist]:
+    def _create_anim_frame(self, figAxes: Axes, barAxes: Axes, frame: dict, max_k: int) -> List[Artist]:
         """
         Create a list of Artists to be shown in a new frame.
 
@@ -159,6 +161,7 @@ class Animation():
             figAxes - axes covering the whole figure
             barAxes - axes where the barplot should be shown
             frame - current frame's data
+            max_k - maximum iteration number
         
         Returns:
             List[Artist] - list with the artists
@@ -180,12 +183,12 @@ class Animation():
                 edge_cols[i] = self.style["edge_colors"]["sorted"]
 
         bars = barAxes.bar(x, y, facecolor=face_cols, edgecolor=edge_cols, linewidth=self.style["edge_width"])
-        text = figAxes.text(0.97, 0.03, "k = {}".format(frame["k"]), horizontalalignment="right", color=self.style["text_color"])
+        text = figAxes.text(0.97, 0.03, "k = {}/{}".format(frame["k"], max_k), horizontalalignment="right", color=self.style["text_color"])
         
         return list(bars) + [text]
 
 
-    def _check_anim_values(self, frames: List[dict], speed: int|float, figsize: Tuple[float, float] | None) -> None:
+    def _check_anim_values(self, frames: List[dict], speed: int|float, repeat: bool, figsize: Tuple[float, float] | None) -> None:
         """
         Checks whether all variables passed to `create_anim` have correct types and values.
         """    
@@ -202,6 +205,10 @@ class Animation():
             raise TypeError("Speed must be a number")
         elif speed <= 0:
             raise ValueError("Speed must have a positive value")
+
+        # repeat
+        if not isinstance(repeat, bool):
+            raise TypeError("Repeat must be a boolean")
         
         # figsize
         if not isinstance(figsize, (tuple, type(None))):

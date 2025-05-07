@@ -56,7 +56,7 @@ class Sort(ABC):
             for i in data:
                 if not isinstance(i, (int, float)):
                     raise TypeError("Data must be a list of numbers")
-            self.data = data
+            self.data = copy.copy(data)
         elif isinstance(data, str):
             # data jsou uložena v souboru
             with open(data, "r") as f:
@@ -107,19 +107,23 @@ class Sort(ABC):
         self.style = self._animation.style
 
     
-    def animate(self, speed: int|float = 0.5, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
+    def animate(self, speed: int|float = 0.5, repeat: bool = True, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
         """
         Creates the visualization animation, as a bar graph.
         
         Params:
             speed - delay between frames in seconds
+            repeat - if the animation should repeat
             figsize - figure size (in inches)
+        
+        Returns:
+            ArtistAnimation - the animation
         """
         if self.data is None:
             raise ValueError("Sorting data must be set")
         
         frames = [copy.deepcopy(frame) for frame in self._sort_next()]
-        return self._animation.create_anim(frames, speed, figsize)
+        return self._animation.create_anim(frames, speed, repeat, figsize)
 
     
     @abstractmethod
