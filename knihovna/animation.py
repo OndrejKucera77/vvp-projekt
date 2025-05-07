@@ -40,7 +40,8 @@ class Animation():
                 "compare": "#B3A513",
                 "sorted": "#1AB316"
             },
-            "line_width": 2.4,
+            "edge_width": 3,
+            "line_width": 2,
             "line_style": "--",
             "line_color": "black",
             "text_color": "black",
@@ -65,7 +66,8 @@ class Animation():
             unsorted: (color),
             compare: (color),
             sorted: (color)
-        }, line_width: (float),
+        }, edge_width: (float),
+        line_width: (float),
         line_style: (style),
         line_color: (color),
         text_color: (color),
@@ -94,6 +96,9 @@ class Animation():
                 self.style["edge_colors"]["compare"] = s["compare"]
             if "sorted" in s and isinstance(s["sorted"], (str, tuple)):
                 self.style["edge_colors"]["sorted"] = s["sorted"]
+        
+        if "edge_width" in style and isinstance(style["edge_width"], (int, float)) and style["edge_width"] >= 0:
+            self.style["edge_width"] = style["edge_width"]
         
         if "line_width" in style and isinstance(style["line_width"], (int, float)) and style["line_width"] >= 0:
             self.style["line_width"] = style["line_width"]
@@ -126,11 +131,12 @@ class Animation():
         self._check_anim_values(frames, speed, figsize)
 
         fig = plt.figure("Sorting algorithm animation", figsize=figsize)
+        fig.set_facecolor(self.style["background_color"])
         fig.add_artist(Line2D([0.03, 0.97], [0.07, 0.07], color=self.style["line_color"], linestyle=self.style["line_style"], linewidth=self.style["line_width"]))
         fig.add_artist(Text(0.03, 0.03, "n = {}".format(len(frames[0]["data"])), color=self.style["text_color"]))
 
         figAxes = fig.add_axes((0, 0, 1, 1))
-        figAxes.set_facecolor(self.style["background_color"])
+        figAxes.set_frame_on(False)
 
         barAxes = fig.add_axes((0, 0.08, 1, 0.9))
         barAxes.set_frame_on(False)
@@ -173,7 +179,7 @@ class Animation():
                 face_cols[i] = self.style["face_colors"]["sorted"]
                 edge_cols[i] = self.style["edge_colors"]["sorted"]
 
-        bars = barAxes.bar(x, y, facecolor=face_cols, edgecolor=edge_cols, linewidth=self.style["line_width"])
+        bars = barAxes.bar(x, y, facecolor=face_cols, edgecolor=edge_cols, linewidth=self.style["edge_width"])
         text = figAxes.text(0.97, 0.03, "k = {}".format(frame["k"]), horizontalalignment="right", color=self.style["text_color"])
         
         return list(bars) + [text]

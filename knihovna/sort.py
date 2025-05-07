@@ -93,7 +93,8 @@ class Sort(ABC):
             unsorted: (color),
             compare: (color),
             sorted: (color)
-        }, line_width: (float),
+        }, edge_width: (float),
+        line_width: (float),
         line_style: (style),
         line_color: (color),
         text_color: (color),
