@@ -132,9 +132,13 @@ class Sort(ABC):
         A generator function returning a dict of values to be shown in each frame of the algorithm's animation.
         
         These are the possible values:
-            data - a (partially) sorted list of data
+            data* - a (partially) sorted list of data
+            k* - the iteration number (how many comparisons have been made)
             compare - a 2-tuple with indexes of currently compared elements
             correct - a list of indexes of correctly sorted elements
-            k - the iteration number (how many comparisons have been made)
+            bounds - a 2-tuple with the left and right bounds of currently processed data
+            pivot - a number, exclusively for quicksort
+        
+        *these are required, the other are optional
         """
         pass

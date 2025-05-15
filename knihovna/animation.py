@@ -8,6 +8,7 @@ from matplotlib.artist import Artist
 from matplotlib.lines import Line2D
 from matplotlib.text import Text
 from matplotlib.axes import Axes
+from matplotlib.patches import Rectangle
 from typing import List, Tuple
 
 
@@ -169,8 +170,16 @@ class Animation():
         n = len(frame["data"])
         x = range(n)
         y = frame["data"]
+        output = []
+        bounds = (-0.5, n-0.5)
 
-        # nastavení správných barev
+        if "bounds" in frame:
+            bounds = (frame["bounds"][0] - 0.5, frame["bounds"][1] + 0.5)
+            lims = barAxes.get_ylim()
+            rect = barAxes.add_artist(Rectangle((bounds[0], lims[0]), bounds[1] - bounds[0], lims[1] - lims[0], color="#DDD"))
+            output += [rect]
+
+        # nastavení správných barev sloupců
         face_cols = [self.style["face_colors"]["unsorted"]] * n
         edge_cols = [self.style["edge_colors"]["unsorted"]] * n
 
@@ -184,8 +193,13 @@ class Animation():
 
         bars = barAxes.bar(x, y, facecolor=face_cols, edgecolor=edge_cols, linewidth=self.style["edge_width"])
         text = figAxes.text(0.97, 0.03, "k = {}/{}".format(frame["k"], max_k), horizontalalignment="right", color=self.style["text_color"])
-        
-        return list(bars) + [text]
+        output += list(bars) + [text]
+
+        if "pivot" in frame:
+            pivot = barAxes.add_line(Line2D([bounds[0], bounds[1]], [frame["pivot"], frame["pivot"]], color="black", linewidth=3))
+            output += [pivot]
+
+        return output
 
 
     def _check_anim_values(self, frames: List[dict], speed: int|float, repeat: bool, figsize: Tuple[float, float] | None) -> None:

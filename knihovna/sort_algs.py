@@ -5,10 +5,11 @@ Classes:
     BubbleSort
     InsertSort
     SelectSort
+    QuickSort
 """
 
 from .sort import Sort
-from typing import Generator
+from typing import Generator, List
 
 
 class BubbleSort(Sort):
@@ -94,3 +95,48 @@ class SelectSort(Sort):
                 yield {"data": self.data, "k": k, "compare": (index, i), "correct": list(range(i))}
             
             yield {"data": self.data, "k": k, "correct": list(range(i+1 if i != n-2 else n))}
+
+
+
+class QuickSort(Sort):
+    """
+    This class implements a quicksort algorithm. The pivot is chosen
+    as the average of the first and the last element.
+    """
+
+    def _sort_next(self, left: int = 0, right: int|None = None, k: int = 0, correct: List[int] = []) -> Generator:
+        if right is None:
+            right = len(self.data) - 1
+        elif left == right:
+            correct.append(left)
+            return
+
+        pivot = (self.data[left] + self.data[right]) / 2
+        l, r = left, right
+        
+        yield {"data": self.data, "k": k, "bounds": (left, right), "correct": correct}
+        yield {"data": self.data, "k": k, "bounds": (left, right), "correct": correct, "pivot": pivot}
+
+        while l < r:
+            k += 1
+            yield {"data": self.data, "k": k, "bounds": (left, right), "correct": correct, "pivot": pivot, "compare": (l, r)}
+            
+            if self._order_int * (self.data[l] - pivot) > 0 and self._order_int * (pivot - self.data[r]) > 0:
+                self.data[l], self.data[r] = self.data[r], self.data[l]
+                yield {"data": self.data, "k": k, "bounds": (left, right), "correct": correct, "pivot": pivot, "compare": (l, r)}
+            
+            if self._order_int * (self.data[l] - pivot) < 0:
+                l += 1
+            if self._order_int * (pivot - self.data[r]) < 0:
+                r -= 1
+
+        m = r - int(r >= l and self._order_int * (self.data[l] - pivot) > 0)
+
+        for frame in self._sort_next(left, m, k, correct):
+            k = frame["k"]
+            yield frame
+        for frame in self._sort_next(m+1, right, k, correct):
+            k = frame["k"]
+            yield frame
+        
+        yield {"data": self.data, "k": k, "bounds": (left, right), "correct": correct}
