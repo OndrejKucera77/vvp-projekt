@@ -3,7 +3,7 @@ Module containing the abstract parent class Sort.
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Literal, Tuple, Generator
+from typing import List, Literal, Tuple, Generator, Dict
 from matplotlib.animation import ArtistAnimation
 from .animation import Animation
 import copy
@@ -76,7 +76,7 @@ class Sort(ABC):
         self._order_int = (-1, 1)[self.order == "ascending"] # pro jednodušší porovnávání
     
 
-    def set_style(self, style: dict) -> None:
+    def set_style(self, style: Dict[str, any]) -> None:
         """
         Sets the style of the animation. Only correctly provided values will be changed.
 
@@ -94,11 +94,15 @@ class Sort(ABC):
             compare: (color),
             sorted: (color)
         }, edge_width: (float),
+        background_color: (color),
+        bounds_color: (color),
+        pivot_color: (color),
+        pivot_width: (float),
+        pivot_style: (style),
+        line_color: (color),
         line_width: (float),
         line_style: (style),
-        line_color: (color),
-        text_color: (color),
-        background_color: (color)
+        text_color: (color)
         }
 
         Colors should be in a valid matplotlib color format. Style should be a valid matplotlib line style, e.g. "dotted".

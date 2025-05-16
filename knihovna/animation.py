@@ -9,7 +9,7 @@ from matplotlib.lines import Line2D
 from matplotlib.text import Text
 from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 
 class Animation():
@@ -42,15 +42,19 @@ class Animation():
                 "sorted": "#1AB316"
             },
             "edge_width": 3,
+            "background_color": "white",
+            "bounds_color": "#DDD",
+            "pivot_color": "black",
+            "pivot_width": 3,
+            "pivot_style": "-",
+            "line_color": "black",
             "line_width": 2,
             "line_style": "--",
-            "line_color": "black",
-            "text_color": "black",
-            "background_color": "white"
+            "text_color": "black"
         }
 
 
-    def set_style(self, style: dict) -> None:
+    def set_style(self, style: Dict[str, any]) -> None:
         """
         Sets the style of the animation. Only correctly provided values will be changed.
 
@@ -68,53 +72,72 @@ class Animation():
             compare: (color),
             sorted: (color)
         }, edge_width: (float),
+        background_color: (color),
+        bounds_color: (color),
+        pivot_color: (color),
+        pivot_width: (float),
+        pivot_style: (style),
+        line_color: (color),
         line_width: (float),
         line_style: (style),
-        line_color: (color),
-        text_color: (color),
-        background_color: (color)
+        text_color: (color)
         }
 
         Colors should be in a valid matplotlib color format. Style should be a valid matplotlib line style, e.g. "dotted".
         """
         if not isinstance(style, dict):
             raise TypeError("Style must be a dictionnary")
+
+        self._check_and_set_style_vals(style, {
+            "face_colors.unsorted": "color",
+            "face_colors.compare": "color",
+            "face_colors.sorted": "color",
+            "edge_colors.unsorted": "color",
+            "edge_colors.compare": "color",
+            "edge_colors.sorted": "color",
+            "edge_width": "number",
+            "background_color": "color",
+            "bounds_color": "color",
+            "pivot_color": "color",
+            "pivot_width": "number",
+            "pivot_style": "style",
+            "line_color": "color",
+            "line_width": "number",
+            "line_style": "style",
+            "text_color": "color"
+        })
+
+
+    def _check_and_set_style_vals(self, style_dict: Dict[str, any], keytypes: Dict[str, str]) -> None:
+        """
+        Receives a dict of style values to be set and a dict containing info on which key values should have which type.
+        This method then checks whether all style values have the right type and if so, sets it.
+        In case of nested dicts in the style dict, the keys in keytypes should be divided by a dot '.'.
+
+        Params:
+            style_dict - the dict with the style keys and values
+            keytypes - the dict containing info oh the types of the key values
+        """
+        correct_types = {"color": (str, tuple), "number": (int, float), "style": (str)}
         
-        if "face_colors" in style:
-            s = style["face_colors"]
-            if "unsorted" in s and isinstance(s["unsorted"], (str, tuple)):
-                self.style["face_colors"]["unsorted"] = s["unsorted"]
-            if "compare" in s and isinstance(s["compare"], (str, tuple)):
-                self.style["face_colors"]["compare"] = s["compare"]
-            if "sorted" in s and isinstance(s["sorted"], (str, tuple)):
-                self.style["face_colors"]["sorted"] = s["sorted"]
-        
-        if "edge_colors" in style:
-            s = style["edge_colors"]
-            if "unsorted" in s and isinstance(s["unsorted"], (str, tuple)):
-                self.style["edge_colors"]["unsorted"] = s["unsorted"]
-            if "compare" in s and isinstance(s["compare"], (str, tuple)):
-                self.style["edge_colors"]["compare"] = s["compare"]
-            if "sorted" in s and isinstance(s["sorted"], (str, tuple)):
-                self.style["edge_colors"]["sorted"] = s["sorted"]
-        
-        if "edge_width" in style and isinstance(style["edge_width"], (int, float)) and style["edge_width"] >= 0:
-            self.style["edge_width"] = style["edge_width"]
-        
-        if "line_width" in style and isinstance(style["line_width"], (int, float)) and style["line_width"] >= 0:
-            self.style["line_width"] = style["line_width"]
-        
-        if "line_style" in style and isinstance(style["line_style"], str):
-            self.style["line_style"] = style["line_style"]
-        
-        if "line_color" in style and isinstance(style["line_color"], (str, tuple)):
-            self.style["line_color"] = style["line_color"]
-        
-        if "text_color" in style and isinstance(style["text_color"], (str, tuple)):
-            self.style["text_color"] = style["text_color"]
-        
-        if "background_color" in style and isinstance(style["background_color"], (str, tuple)):
-            self.style["background_color"] = style["background_color"]
+        for style_key in keytypes:
+            keys = style_key.split(".")
+            val = style_dict
+
+            # klíče musí ve stylu být
+            for key in keys:
+                if key in val:
+                    val = val[key]
+                else:
+                    break
+            else:
+                # pokud jsou, hodnota musí mít jeden z povolených typů
+                if isinstance(val, correct_types[keytypes[style_key]]):
+                    # a pak se nastaví
+                    target = self.style
+                    for key in keys[:-1]:
+                        target = target[key] 
+                    target[keys[-1]] = val
 
 
     def create_anim(self, frames: List[dict], speed: int|float = 0.5, repeat: bool = True, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
@@ -137,30 +160,30 @@ class Animation():
         fig.add_artist(Line2D([0.03, 0.97], [0.07, 0.07], color=self.style["line_color"], linestyle=self.style["line_style"], linewidth=self.style["line_width"]))
         fig.add_artist(Text(0.03, 0.03, "n = {}".format(len(frames[0]["data"])), color=self.style["text_color"]))
 
-        figAxes = fig.add_axes((0, 0, 1, 1))
-        figAxes.set_frame_on(False)
+        fig_axes = fig.add_axes((0, 0, 1, 1))
+        fig_axes.set_frame_on(False)
 
-        barAxes = fig.add_axes((0, 0.08, 1, 0.9))
-        barAxes.set_frame_on(False)
-        barAxes.set_xticks([])
-        barAxes.set_yticks([])
+        bar_axes = fig.add_axes((0, 0.08, 1, 0.9))
+        bar_axes.set_frame_on(False)
+        bar_axes.set_xticks([])
+        bar_axes.set_yticks([])
 
         max_k = frames[-1]["k"]
         artists = []
         
         for frame in frames:
-            artists.append(self._create_anim_frame(figAxes, barAxes, frame, max_k))
+            artists.append(self._create_anim_frame(fig_axes, bar_axes, frame, max_k))
 
         return ArtistAnimation(fig, artists, speed * 1000, repeat=repeat, blit=True)
     
     
-    def _create_anim_frame(self, figAxes: Axes, barAxes: Axes, frame: dict, max_k: int) -> List[Artist]:
+    def _create_anim_frame(self, fig_axes: Axes, bar_axes: Axes, frame: dict, max_k: int) -> List[Artist]:
         """
         Create a list of Artists to be shown in a new frame.
 
         Params:
-            figAxes - axes covering the whole figure
-            barAxes - axes where the barplot should be shown
+            fig_axes - axes covering the whole figure
+            bar_axes - axes where the barplot should be shown
             frame - current frame's data
             max_k - maximum iteration number
         
@@ -175,8 +198,8 @@ class Animation():
 
         if "bounds" in frame:
             bounds = (frame["bounds"][0] - 0.5, frame["bounds"][1] + 0.5)
-            lims = barAxes.get_ylim()
-            rect = barAxes.add_artist(Rectangle((bounds[0], lims[0]), bounds[1] - bounds[0], lims[1] - lims[0], color="#DDD"))
+            lims = bar_axes.get_ylim()
+            rect = bar_axes.add_artist(Rectangle((bounds[0], lims[0]), bounds[1] - bounds[0], lims[1] - lims[0], color=self.style["bounds_color"]))
             output += [rect]
 
         # nastavení správných barev sloupců
@@ -191,12 +214,12 @@ class Animation():
                 face_cols[i] = self.style["face_colors"]["sorted"]
                 edge_cols[i] = self.style["edge_colors"]["sorted"]
 
-        bars = barAxes.bar(x, y, facecolor=face_cols, edgecolor=edge_cols, linewidth=self.style["edge_width"])
-        text = figAxes.text(0.97, 0.03, "k = {}/{}".format(frame["k"], max_k), horizontalalignment="right", color=self.style["text_color"])
+        bars = bar_axes.bar(x, y, facecolor=face_cols, edgecolor=edge_cols, linewidth=self.style["edge_width"])
+        text = fig_axes.text(0.97, 0.03, "k = {}/{}".format(frame["k"], max_k), horizontalalignment="right", color=self.style["text_color"])
         output += list(bars) + [text]
 
         if "pivot" in frame:
-            pivot = barAxes.add_line(Line2D([bounds[0], bounds[1]], [frame["pivot"], frame["pivot"]], color="black", linewidth=3))
+            pivot = bar_axes.add_line(Line2D([bounds[0], bounds[1]], [frame["pivot"], frame["pivot"]], color=self.style["pivot_color"], linestyle=self.style["pivot_style"], linewidth=self.style["pivot_width"]))
             output += [pivot]
 
         return output
