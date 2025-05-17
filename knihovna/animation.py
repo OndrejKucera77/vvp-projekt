@@ -159,7 +159,7 @@ class Animation():
         fig.set_facecolor(self.style["background_color"])
         fig.add_artist(Line2D([0.03, 0.97], [0.07, 0.07], color=self.style["line_color"], linestyle=self.style["line_style"], linewidth=self.style["line_width"]))
         fig.add_artist(Text(0.03, 0.03, "n = {}".format(len(frames[0]["data"])), color=self.style["text_color"]))
-        fig.add_artist(Text(0.5, 0.03, title, horizontalalignment="center"))
+        fig.add_artist(Text(0.5, 0.03, title, horizontalalignment="center", color=self.style["text_color"]))
 
         fig_axes = fig.add_axes((0, 0, 1, 1))
         fig_axes.set_frame_on(False)

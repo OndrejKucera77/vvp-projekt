@@ -23,6 +23,7 @@ class Sort(ABC):
         set_data - sets data
         set_order - sets order
         set_style - sets the animation's style
+        get_title - get the title of the sorting algorithm
         animate - returns a visualisation animation of the sorting algorithm
     """
 
@@ -119,7 +120,7 @@ class Sort(ABC):
         Get the title of the sorting algorithm.
         """
         name = self.__class__.__name__
-        return f"{name[:-4]} {name[-4:]} ({self.order})"
+        return f"{name[:-4]} Sort ({self.order})"
 
     
     def animate(self, speed: int|float = 0.5, repeat: bool = True, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
