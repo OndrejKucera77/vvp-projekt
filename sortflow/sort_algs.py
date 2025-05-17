@@ -1,12 +1,13 @@
 """
-Module containing classes implementing different sorting algorithms.
+Module containing classes implementing different sorting algorithms. These classes
+inherent from Sort.
 
 Classes:
-    BubbleSort
-    InsertSort
-    SelectSort
-    QuickSort
-    MergeSort
+- BubbleSort
+- InsertSort
+- SelectSort
+- QuickSort
+- MergeSort
 """
 
 from .sort import Sort
@@ -18,7 +19,7 @@ class BubbleSort(Sort):
     This class implements an optimised bubble sort algorithm.
     """
 
-    def _sort_next(self) -> Generator:
+    def _sort_next(self):
         yield {"data": self.data, "k": 0}
         
         n = len(self.data)
@@ -47,7 +48,7 @@ class InsertSort(Sort):
     This class implements a linear insertion sort algorithm.
     """
 
-    def _sort_next(self) -> Generator:
+    def _sort_next(self):
         n = len(self.data)
         k = 0
 
@@ -75,7 +76,7 @@ class SelectSort(Sort):
     This class implements a selection sort algorithm.
     """
 
-    def _sort_next(self) -> Generator:
+    def _sort_next(self):
         yield {"data": self.data, "k": 0}
 
         n = len(self.data)
@@ -105,7 +106,7 @@ class QuickSort(Sort):
     as the average of the first and the last element.
     """
 
-    def _sort_next(self, left: int = 0, right: int|None = None, k: int = 0, correct: List[int] = []) -> Generator:
+    def _sort_next(self, left: int = 0, right: int|None = None, k: int = 0, correct: List[int] = []):
         if right is None:
             right = len(self.data) - 1
         elif left == right:
@@ -149,7 +150,7 @@ class MergeSort(Sort):
     This class implements a recursive merge sort algorithm.
     """
 
-    def _sort_next(self, left: int = 0, right: int|None = None, k: int = 0, correct: List[int] = []) -> Generator:
+    def _sort_next(self, left: int = 0, right: int|None = None, k: int = 0, correct: List[int] = []):
         if right is None:
             right = len(self.data) - 1
         elif left == right:

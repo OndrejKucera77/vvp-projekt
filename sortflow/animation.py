@@ -83,7 +83,8 @@ class Animation():
         text_color: (color)
         }
 
-        Colors should be in a valid matplotlib color format. Style should be a valid matplotlib line style, e.g. "dotted".
+        Colors should be in a valid matplotlib color format. Style should be a valid matplotlib
+        line style, e.g. "dotted".
         """
         if not isinstance(style, dict):
             raise TypeError("Style must be a dictionnary")
@@ -140,12 +141,14 @@ class Animation():
                     target[keys[-1]] = val
 
 
-    def create_anim(self, frames: List[dict], title: str, speed: int|float = 0.5, repeat: bool = True, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
+    def create_anim(self, frames: List[dict], title: str, speed: int|float = 0.5, repeat: bool = True, 
+                    figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
         """
         Creates the visualization animation.
         
         Params:
             frames - list of frame data
+            title - the title of the animation/sorting algorithm
             speed - delay between frames in seconds
             repeat - if the animation should repeat
             figsize - figure size (in inches)
@@ -157,7 +160,8 @@ class Animation():
 
         fig = plt.figure(title, figsize)
         fig.set_facecolor(self.style["background_color"])
-        fig.add_artist(Line2D([0.03, 0.97], [0.07, 0.07], color=self.style["line_color"], linestyle=self.style["line_style"], linewidth=self.style["line_width"]))
+        fig.add_artist(Line2D([0.03, 0.97], [0.07, 0.07], color=self.style["line_color"], linestyle=self.style["line_style"], 
+                              linewidth=self.style["line_width"]))
         fig.add_artist(Text(0.03, 0.03, "n = {}".format(len(frames[0]["data"])), color=self.style["text_color"]))
         fig.add_artist(Text(0.5, 0.03, title, horizontalalignment="center", color=self.style["text_color"]))
 
@@ -215,22 +219,26 @@ class Animation():
         if "bounds" in frame:
             bounds = (frame["bounds"][0] - 0.5, frame["bounds"][1] + 0.5)
             ylims = bar_axes.get_ylim()
-            rect = bar_axes.add_artist(Rectangle((bounds[0], ylims[0]), bounds[1] - bounds[0], ylims[1] - ylims[0], color=self.style["bounds_color"]))
+            rect = bar_axes.add_artist(Rectangle((bounds[0], ylims[0]), bounds[1] - bounds[0], ylims[1] - ylims[0], 
+                                                 color=self.style["bounds_color"]))
             output += [rect]
         
         output += list(bars)
 
         if "pivot" in frame:
-            pivot = bar_axes.add_line(Line2D([bounds[0], bounds[1]], [frame["pivot"], frame["pivot"]], color=self.style["pivot_color"], linestyle=self.style["pivot_style"], linewidth=self.style["pivot_width"]))
+            pivot = bar_axes.add_line(Line2D([bounds[0], bounds[1]], [frame["pivot"], frame["pivot"]], color=self.style["pivot_color"], 
+                                             linestyle=self.style["pivot_style"], linewidth=self.style["pivot_width"]))
             output += [pivot]
 
-        text = fig_axes.text(0.97, 0.03, "k = {}/{}".format(frame["k"], max_k), horizontalalignment="right", color=self.style["text_color"])
+        text = fig_axes.text(0.97, 0.03, "k = {}/{}".format(frame["k"], max_k), horizontalalignment="right", 
+                             color=self.style["text_color"])
         output += [text]
         
         return output
 
 
-    def _check_anim_values(self, frames: List[dict], title: str, speed: int|float, repeat: bool, figsize: Tuple[float, float] | None) -> None:
+    def _check_anim_values(self, frames: List[dict], title: str, speed: int|float, repeat: bool, 
+                           figsize: Tuple[float, float] | None) -> None:
         """
         Checks whether all variables passed to `create_anim` have correct types and values.
         """    

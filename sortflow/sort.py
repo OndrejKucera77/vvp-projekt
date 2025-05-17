@@ -9,6 +9,16 @@ from .animation import Animation
 import copy
 
 
+def is_documented_by(original):
+  """
+  This decorator should copy a docstring.
+  """
+  def wrapper(target):
+    target.__doc__ = original.__doc__
+    return target
+  return wrapper
+
+
 class Sort(ABC):
     """
     Abstract class containing basic methods which every visualising sorting algorithm needs.
@@ -16,12 +26,12 @@ class Sort(ABC):
 
     Attributes:
         data - list of numbers (int/float) to sort
-        order - desired order of the sorted list (ascending/descending), defaults to ascending
+        order - desired order of the sorted list (ascending/descending)
         style - the style of the animation (i.e. bar colors)
     
     Methods:
-        set_data - sets data
-        set_order - sets order
+        set_data - sets the data
+        set_order - sets the order
         set_style - sets the animation's style
         get_title - get the title of the sorting algorithm
         animate - returns a visualisation animation of the sorting algorithm
@@ -32,8 +42,8 @@ class Sort(ABC):
         """
         Params:
             data - list of numbers to sort or a path to a file
-            order - desired order of the sorted list
-            style - a dict containing the style of the animation
+            order - desired order of the sorted list, either "ascending" or "descending" (default ascending)
+            style - a dict containing the style of the animation, see the set_style method
         """
         super().__init__()
         
@@ -80,42 +90,17 @@ class Sort(ABC):
         self._order_int = (-1, 1)[self.order == "ascending"] # pro jednodušší porovnávání
     
 
+    @is_documented_by(Animation.set_style)
     def set_style(self, style: Dict[str, any]) -> None:
         """
-        Sets the style of the animation. Only correctly provided values will be changed.
-
-        Params:
-            style - a dict of style values
-        
-        This is the dict's structure:
-        {
-        face_colors: {
-            unsorted: (color),
-            compare: (color),
-            sorted: (color)
-        }, edge_colors: {
-            unsorted: (color),
-            compare: (color),
-            sorted: (color)
-        }, edge_width: (float),
-        background_color: (color),
-        bounds_color: (color),
-        pivot_color: (color),
-        pivot_width: (float),
-        pivot_style: (style),
-        line_color: (color),
-        line_width: (float),
-        line_style: (style),
-        text_color: (color)
-        }
-
-        Colors should be in a valid matplotlib color format. Style should be a valid matplotlib line style, e.g. "dotted".
+        If there's no docstring here, check the documentation in the Animation class.
         """
+        # docstring by měl být stejný jako v Animation
         self._animation.set_style(style)
         self.style = self._animation.style
     
 
-    def get_title(self) -> None:
+    def get_title(self) -> str:
         """
         Get the title of the sorting algorithm.
         """
@@ -147,17 +132,17 @@ class Sort(ABC):
 
     
     @abstractmethod
-    def _sort_next(self) -> Generator:
+    def _sort_next(self) -> Generator[Dict[str, any], None, None]:
         """
         A generator function returning a dict of values to be shown in each frame of the algorithm's animation.
         
         These are the possible values:
-            data* - a (partially) sorted list of data
-            k* - the iteration number (how many comparisons have been made)
-            compare - a 2-tuple with indexes of currently compared elements
-            correct - a list of indexes of correctly sorted elements
-            bounds - a 2-tuple with the left and right bounds of currently processed data
-            pivot - a number, exclusively for quicksort
+        - data* - a (partially) sorted list of data
+        - k* - the iteration number (how many comparisons have been made)
+        - compare - a 2-tuple with indexes of currently compared elements
+        - correct - a list of indexes of correctly sorted elements
+        - bounds - a 2-tuple with the left and right bounds of currently processed data
+        - pivot - a number, exclusively for quicksort
         
         *these are required, the other are optional
         """
