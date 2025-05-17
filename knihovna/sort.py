@@ -38,6 +38,9 @@ class Sort(ABC):
         
         if data is not None:
             self.set_data(data)
+        else:
+            self.data = None
+        
         self.set_order(order)
 
         self._animation = Animation()
@@ -109,6 +112,14 @@ class Sort(ABC):
         """
         self._animation.set_style(style)
         self.style = self._animation.style
+    
+
+    def get_title(self) -> None:
+        """
+        Get the title of the sorting algorithm.
+        """
+        name = self.__class__.__name__
+        return f"{name[:-4]} {name[-4:]} ({self.order})"
 
     
     def animate(self, speed: int|float = 0.5, repeat: bool = True, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
@@ -125,9 +136,13 @@ class Sort(ABC):
         """
         if self.data is None:
             raise ValueError("Sorting data must be set")
+        elif len(self.data) == 0:
+            raise ValueError("Sorting data must have at least one number")
         
         frames = [copy.deepcopy(frame) for frame in self._sort_next()]
-        return self._animation.create_anim(frames, speed, repeat, figsize)
+        title = self.get_title()
+
+        return self._animation.create_anim(frames, title, speed, repeat, figsize)
 
     
     @abstractmethod

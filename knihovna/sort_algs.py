@@ -6,6 +6,7 @@ Classes:
     InsertSort
     SelectSort
     QuickSort
+    MergeSort
 """
 
 from .sort import Sort
@@ -125,9 +126,9 @@ class QuickSort(Sort):
                 self.data[l], self.data[r] = self.data[r], self.data[l]
                 yield {"data": self.data, "k": k, "bounds": (left, right), "correct": correct, "pivot": pivot, "compare": (l, r)}
             
-            if self._order_int * (self.data[l] - pivot) < 0:
+            if self._order_int * (self.data[l] - pivot) <= 0:
                 l += 1
-            if self._order_int * (pivot - self.data[r]) < 0:
+            if self._order_int * (pivot - self.data[r]) <= 0:
                 r -= 1
 
         m = r - int(r >= l and self._order_int * (self.data[l] - pivot) > 0)
@@ -138,5 +139,47 @@ class QuickSort(Sort):
         for frame in self._sort_next(m+1, right, k, correct):
             k = frame["k"]
             yield frame
+        
+        yield {"data": self.data, "k": k, "bounds": (left, right), "correct": correct}
+
+
+
+class MergeSort(Sort):
+    """
+    This class implements a recursive merge sort algorithm.
+    """
+
+    def _sort_next(self, left: int = 0, right: int|None = None, k: int = 0, correct: List[int] = []) -> Generator:
+        if right is None:
+            right = len(self.data) - 1
+        elif left == right:
+            correct.append(left)
+            return
+        
+        yield {"data": self.data, "k": k, "bounds": (left, right), "correct": correct}
+
+        m = (left + right) // 2
+
+        for frame in self._sort_next(left, m, k):
+            k = frame["k"]
+            yield frame
+        for frame in self._sort_next(m+1, right, k):
+            k = frame["k"]
+            yield frame
+
+        i, j = left, m+1
+
+        # in place merge
+        while i <= m and j <= right:
+            k += 1
+            yield {"data": self.data, "k": k, "bounds": (left, right), "compare": (i, j), "correct": correct}
+
+            if self._order_int * (self.data[i] - self.data[j]) > 0:
+                self.data[i], self.data[i+1:j+1] = self.data[j], self.data[i:j]
+                yield {"data": self.data, "k": k, "bounds": (left, right), "compare": (i, j), "correct": correct}
+                m += 1
+                j += 1
+            
+            i += 1
         
         yield {"data": self.data, "k": k, "bounds": (left, right), "correct": correct}

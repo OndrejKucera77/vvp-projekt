@@ -140,7 +140,7 @@ class Animation():
                     target[keys[-1]] = val
 
 
-    def create_anim(self, frames: List[dict], speed: int|float = 0.5, repeat: bool = True, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
+    def create_anim(self, frames: List[dict], title: str, speed: int|float = 0.5, repeat: bool = True, figsize: Tuple[float, float] | None = None) -> ArtistAnimation:
         """
         Creates the visualization animation.
         
@@ -153,12 +153,13 @@ class Animation():
         Returns:
             ArtistAnimation - the animation
         """
-        self._check_anim_values(frames, speed, repeat, figsize)
+        self._check_anim_values(frames, title, speed, repeat, figsize)
 
-        fig = plt.figure("Sorting algorithm animation", figsize=figsize)
+        fig = plt.figure(title, figsize)
         fig.set_facecolor(self.style["background_color"])
         fig.add_artist(Line2D([0.03, 0.97], [0.07, 0.07], color=self.style["line_color"], linestyle=self.style["line_style"], linewidth=self.style["line_width"]))
         fig.add_artist(Text(0.03, 0.03, "n = {}".format(len(frames[0]["data"])), color=self.style["text_color"]))
+        fig.add_artist(Text(0.5, 0.03, title, horizontalalignment="center"))
 
         fig_axes = fig.add_axes((0, 0, 1, 1))
         fig_axes.set_frame_on(False)
@@ -193,14 +194,6 @@ class Animation():
         n = len(frame["data"])
         x = range(n)
         y = frame["data"]
-        output = []
-        bounds = (-0.5, n-0.5)
-
-        if "bounds" in frame:
-            bounds = (frame["bounds"][0] - 0.5, frame["bounds"][1] + 0.5)
-            lims = bar_axes.get_ylim()
-            rect = bar_axes.add_artist(Rectangle((bounds[0], lims[0]), bounds[1] - bounds[0], lims[1] - lims[0], color=self.style["bounds_color"]))
-            output += [rect]
 
         # nastavení správných barev sloupců
         face_cols = [self.style["face_colors"]["unsorted"]] * n
@@ -215,17 +208,29 @@ class Animation():
                 edge_cols[i] = self.style["edge_colors"]["sorted"]
 
         bars = bar_axes.bar(x, y, facecolor=face_cols, edgecolor=edge_cols, linewidth=self.style["edge_width"])
-        text = fig_axes.text(0.97, 0.03, "k = {}/{}".format(frame["k"], max_k), horizontalalignment="right", color=self.style["text_color"])
-        output += list(bars) + [text]
+        
+        output = []
+        bounds = (-0.5, n-0.5)
+
+        if "bounds" in frame:
+            bounds = (frame["bounds"][0] - 0.5, frame["bounds"][1] + 0.5)
+            ylims = bar_axes.get_ylim()
+            rect = bar_axes.add_artist(Rectangle((bounds[0], ylims[0]), bounds[1] - bounds[0], ylims[1] - ylims[0], color=self.style["bounds_color"]))
+            output += [rect]
+        
+        output += list(bars)
 
         if "pivot" in frame:
             pivot = bar_axes.add_line(Line2D([bounds[0], bounds[1]], [frame["pivot"], frame["pivot"]], color=self.style["pivot_color"], linestyle=self.style["pivot_style"], linewidth=self.style["pivot_width"]))
             output += [pivot]
 
+        text = fig_axes.text(0.97, 0.03, "k = {}/{}".format(frame["k"], max_k), horizontalalignment="right", color=self.style["text_color"])
+        output += [text]
+        
         return output
 
 
-    def _check_anim_values(self, frames: List[dict], speed: int|float, repeat: bool, figsize: Tuple[float, float] | None) -> None:
+    def _check_anim_values(self, frames: List[dict], title: str, speed: int|float, repeat: bool, figsize: Tuple[float, float] | None) -> None:
         """
         Checks whether all variables passed to `create_anim` have correct types and values.
         """    
@@ -236,6 +241,10 @@ class Animation():
             for frame in frames:
                 if not isinstance(frame, dict):
                     raise TypeError("Every frame must be a dict")
+        
+        # title
+        if not isinstance(title, str):
+            raise TypeError("Title must be a string")
         
         # speed
         if not isinstance(speed, (int, float)):
