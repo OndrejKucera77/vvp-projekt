@@ -179,7 +179,7 @@ class Animation():
         for frame in frames:
             artists.append(self._create_anim_frame(fig_axes, bar_axes, frame, max_k))
 
-        return ArtistAnimation(fig, artists, speed * 1000, repeat=repeat, blit=True)
+        return ArtistAnimation(fig, artists, speed * 1000, repeat=repeat, blit=False)
     
     
     def _create_anim_frame(self, fig_axes: Axes, bar_axes: Axes, frame: dict, max_k: int) -> List[Artist]:
@@ -211,7 +211,7 @@ class Animation():
                 face_cols[i] = self.style["face_colors"]["sorted"]
                 edge_cols[i] = self.style["edge_colors"]["sorted"]
 
-        bars = bar_axes.bar(x, y, facecolor=face_cols, edgecolor=edge_cols, linewidth=self.style["edge_width"])
+        bars = bar_axes.bar(x, y, facecolor=face_cols, edgecolor=edge_cols, linewidth=self.style["edge_width"], zorder=10)
         
         output = []
         bounds = (-0.5, n-0.5)
@@ -220,18 +220,18 @@ class Animation():
             bounds = (frame["bounds"][0] - 0.5, frame["bounds"][1] + 0.5)
             ylims = bar_axes.get_ylim()
             rect = bar_axes.add_artist(Rectangle((bounds[0], ylims[0]), bounds[1] - bounds[0], ylims[1] - ylims[0], 
-                                                 color=self.style["bounds_color"]))
+                                                 color=self.style["bounds_color"], zorder=0))
             output += [rect]
         
         output += list(bars)
 
         if "pivot" in frame:
             pivot = bar_axes.add_line(Line2D([bounds[0], bounds[1]], [frame["pivot"], frame["pivot"]], color=self.style["pivot_color"], 
-                                             linestyle=self.style["pivot_style"], linewidth=self.style["pivot_width"]))
+                                             linestyle=self.style["pivot_style"], linewidth=self.style["pivot_width"], zorder=20))
             output += [pivot]
 
         text = fig_axes.text(0.97, 0.03, "k = {}/{}".format(frame["k"], max_k), horizontalalignment="right", 
-                             color=self.style["text_color"])
+                             color=self.style["text_color"], zorder=0)
         output += [text]
         
         return output
